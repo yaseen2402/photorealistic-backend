@@ -1,0 +1,17 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$sharp-airway-439506-f8/YOUR_IMAGE_NAME', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$sharp-airway-439506-f8/photo-image']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'YOUR_SERVICE_NAME'
+      - '--image'
+      - 'gcr.io/$sharp-airway-439506-f8/photo-image'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
