@@ -4,7 +4,7 @@ const PORT = process.env.PORT || 8080; // Cloud Run uses PORT environment variab
 
 // Hello World endpoint
 app.get('/', (req, res) => {
-    res.send('Hello, World!');
+    res.send('Hello, Hello');
 });
 
 // Custom message endpoint
