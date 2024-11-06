@@ -27,7 +27,7 @@ const getPropertiesByCoordinates = async (req, res) => {
     }
   } catch (error) {
     console.error('Error executing query:', error);
-    res.status(500).json({ error: 'Database query failed' });
+    res.status(500).json({ error: 'query failed' });
   }
 };
 
