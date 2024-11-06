@@ -1,17 +1,24 @@
-const express = require('express');
+require('dotenv').config();
+const express=require("express");
+const propertyRoutes = require('./routes/propertyRoutes'); 
 const app = express();
-const PORT = process.env.PORT || 8080; // Cloud Run uses PORT environment variable
+const PORT = 8080; 
+
 
 // Hello World endpoint
 app.get('/', (req, res) => {
     res.send('Hello, Hello, hello');
 });
 
+app.use('/api/properties', propertyRoutes);
+
 // Custom message endpoint
 app.get('/api/message', (req, res) => {
     const message = req.query.message || 'No message provided!';
     res.send(`Your message: ${message}`);
 });
+
+
 
 // Start the server
 app.listen(PORT, () => {
