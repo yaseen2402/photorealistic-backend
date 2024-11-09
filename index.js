@@ -2,7 +2,7 @@ require('dotenv').config();
 const express=require("express");
 const propertyRoutes = require('./routes/propertyRoutes'); 
 const app = express();
-const PORT = 8080|process.env.PORT; 
+const PORT = 8080||process.env.PORT; 
 
 const corsOptions = {
     origin: '*', // Allow all origins
