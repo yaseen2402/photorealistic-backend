@@ -3,12 +3,10 @@ const cors = require('cors');
 const express=require("express");
 const propertyRoutes = require('./routes/propertyRoutes'); 
 const userRoutes = require('./routes/userRoutes'); 
-const app = express();
+
 const PORT = 8080||process.env.PORT; 
 const pool = require('./db');
-
-app.use(express.json());
-
+const app = express();
 
 const corsOptions = {
     origin: '*', // Allow all origins
@@ -16,22 +14,29 @@ const corsOptions = {
     allowedHeaders: 'Authorization,Content-Type',
     maxAge: 3600
   };
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable preflight OPTIONS request for all routes
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');  
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader('Access-Control-Max-Age', '3600');
+    // Handle OPTIONS requests
+    if (req.method === 'OPTIONS') {
+      return res.status(204).send('');
+    }
+    next();
+  });
+
+
+
+app.use(express.json());
+
+
   
   // Middleware
-  app.use(cors(corsOptions));
-  app.options('*', cors(corsOptions)); // Enable preflight OPTIONS request for all routes
-  
-  app.use((req, res, next) => {
-      res.setHeader('Access-Control-Allow-Origin', '*');  
-      res.setHeader('Access-Control-Allow-Methods', '*');
-      res.setHeader('Access-Control-Allow-Headers', '*');
-      res.setHeader('Access-Control-Max-Age', '3600');
-      // Handle OPTIONS requests
-      if (req.method === 'OPTIONS') {
-        return res.status(204).send('');
-      }
-      next();
-    });
+
   
 
 
