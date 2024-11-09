@@ -34,21 +34,22 @@ const corsOptions = {
     });
   
 
-// Hello World endpoint
-app.get('/', (req, res) => {
-    res.send('Hello, Hello, hello');
-});
+
+
 app.use('/api/users',userRoutes);
 app.use('/api/properties', propertyRoutes);
 
-// Custom message endpoint
+
+//testing
+app.get('/', (req, res) => {
+    res.send('Hello, Hello, hello');
+});
 app.get('/api/message', (req, res) => {
     const message = req.query.message || 'No message provided!';
     res.send(`Your message: ${message}`);
 });
 
 
-// Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
