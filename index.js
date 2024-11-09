@@ -2,8 +2,13 @@ require('dotenv').config();
 const cors = require('cors');
 const express=require("express");
 const propertyRoutes = require('./routes/propertyRoutes'); 
+const userRoutes = require('./routes/userRoutes'); 
 const app = express();
 const PORT = 8080||process.env.PORT; 
+const pool = require('./db');
+
+app.use(express.json());
+
 
 const corsOptions = {
     origin: '*', // Allow all origins
@@ -33,7 +38,7 @@ const corsOptions = {
 app.get('/', (req, res) => {
     res.send('Hello, Hello, hello');
 });
-
+app.use('/api/users',userRoutes);
 app.use('/api/properties', propertyRoutes);
 
 // Custom message endpoint
@@ -41,7 +46,6 @@ app.get('/api/message', (req, res) => {
     const message = req.query.message || 'No message provided!';
     res.send(`Your message: ${message}`);
 });
-
 
 
 // Start the server
