@@ -9,7 +9,8 @@ const pool = require('./db');
 const app = express();
 
 const corsOptions = {
-    origin: '*', // Allow all origins
+    origin: 'http://localhost:3000',
+
     credentials: true,
     methods: 'GET, POST, PUT, DELETE, OPTIONS',
     allowedHeaders: 'Authorization,Content-Type',
@@ -19,7 +20,8 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Enable preflight OPTIONS request for all routes
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');  
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');  
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', '*');
     res.setHeader('Access-Control-Allow-Headers', '*');
     res.setHeader('Access-Control-Max-Age', '3600');
