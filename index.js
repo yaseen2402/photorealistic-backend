@@ -3,7 +3,7 @@ const cors = require('cors');
 const express=require("express");
 const propertyRoutes = require('./routes/propertyRoutes'); 
 const userRoutes = require('./routes/userRoutes'); 
-
+const commentRoutes = require('./routes/commentRoutes');
 const PORT = 8080||process.env.PORT; 
 const pool = require('./db');
 const app = express();
@@ -46,7 +46,7 @@ app.use(express.json());
 
 app.use('/api/users',userRoutes);
 app.use('/api/properties', propertyRoutes);
-
+app.use('/api/comments',commentRoutes);
 
 //testing
 app.get('/', (req, res) => {
