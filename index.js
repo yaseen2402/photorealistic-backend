@@ -4,6 +4,8 @@ const express=require("express");
 const propertyRoutes = require('./routes/propertyRoutes'); 
 const userRoutes = require('./routes/userRoutes'); 
 const commentRoutes = require('./routes/commentRoutes');
+const favoritesRoutes = require('./routes/favoritesRoutes');
+const preferencesRoutes = require('./routes/preferencesRoutes');
 const PORT = 8080||process.env.PORT; 
 const pool = require('./db');
 const app = express();
@@ -47,6 +49,8 @@ app.use(express.json());
 app.use('/api/users',userRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/comments',commentRoutes);
+app.use('/api/favorites', favoritesRoutes);
+app.use('/api/preferences', preferencesRoutes);
 
 //testing
 app.get('/', (req, res) => {
