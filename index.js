@@ -11,48 +11,37 @@ const pool = require('./db');
 const app = express();
 const wellknown = require('wellknown');
 
-
 const corsOptions = {
-  origin: '*',
+  origin: 'http://localhost:3000',
+
   credentials: true,
   methods: 'GET, POST, PUT, DELETE, OPTIONS',
   allowedHeaders: 'Authorization,Content-Type',
   maxAge: 3600
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); 
+app.options('*', cors(corsOptions)); // Enable preflight OPTIONS request for all routes
 
 // app.use((req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', req.headers.origin);
-//   res.header('X-Frame-Options', 'DENY');
-//   res.header('X-Content-Type-Options', 'nosniff');
-//   res.header('X-XSS-Protection', '1; mode=block');
-//   res.header('Content-Security-Policy', "default-src 'self'");
-//   res.header('Strict-Transport-Security', 'max-age=31536000');
-  
-//   next();
-// });
-
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');  
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*');
-    res.setHeader('Access-Control-Max-Age', '3600');
-    // Handle OPTIONS requests
-    if (req.method === 'OPTIONS') {
-      return res.status(204).send('');
-    }
-    next();
-  });
+//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');  
+//     res.setHeader('Access-Control-Allow-Credentials', 'true');
+//     res.setHeader('Access-Control-Allow-Methods', '*');
+//     res.setHeader('Access-Control-Allow-Headers', '*');
+//     res.setHeader('Access-Control-Max-Age', '3600');
+//     // Handle OPTIONS requests
+//     if (req.method === 'OPTIONS') {
+//       return res.status(204).send('');
+//     }
+//     next();
+//   });
 
 
 
 app.use(express.json());
 
 
-  
-  // Middleware
+
+// Middleware
 
 
 app.use('/api/users',userRoutes);
