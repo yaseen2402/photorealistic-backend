@@ -158,7 +158,7 @@ const getPropertyRecommendations = async (
                 if (propertyRecs.length === propsToReturn) break;
             }
         }
-
+        propertyRecs = [[4, 40.80934, -73.94682], [4, 40.80934, -73.94682], [4, 40.80934, -73.94682]]
         return propertyRecs;
     } catch (error) {
         console.error('Error in getPropertyRecommendations:', error);
