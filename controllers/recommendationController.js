@@ -40,20 +40,20 @@ const getPropertyRecommendations = async (
     propsToReturn = 10
 ) => {
     try {
-        // // Convert rent_or_buy parameter
-        // rentOrBuy = rentOrBuy === 'rent' ? 'for_rent' : 'for_sale';
+        // Convert rent_or_buy parameter
+        rentOrBuy = rentOrBuy === 'rent' ? 'for_rent' : 'for_sale';
 
-        // // Get properties matching basic criteria
-        // const propQuery = `
-        //     SELECT property_id, zip_code_id, coordinate_lat, coordinate_lon
-        //     FROM properties
-        //     WHERE num_beds >= $1
-        //         AND num_baths >= $2
-        //         AND status = $3
-        //         AND price BETWEEN $4 AND $5
-        // `;
-        // const propResult = await pool.query(propQuery, [minBeds, minBaths, rentOrBuy, priceMin, priceMax]);
-        // const propTable = propResult.rows;
+        // Get properties matching basic criteria
+        const propQuery = `
+            SELECT property_id, zip_code_id, coordinate_lat, coordinate_lon
+            FROM properties
+            WHERE num_beds >= $1
+                AND num_baths >= $2
+                AND status = $3
+                AND price BETWEEN $4 AND $5
+        `;
+        const propResult = await pool.query(propQuery, [minBeds, minBaths, rentOrBuy, priceMin, priceMax]);
+        const propTable = propResult.rows;
 
         // // Query Zip Codes
         // const zipQuery = 'SELECT * FROM zip_codes';
@@ -126,7 +126,8 @@ const getPropertyRecommendations = async (
         //         if (propertyRecs.length === propsToReturn) break;
         //     }
         // }
-        const propertyRecs = "testing!@!!#12424";
+
+        propertyRecs = propTable;
         return propertyRecs;
     } catch (error) {
         console.error('Error in getPropertyRecommendations:', error);
