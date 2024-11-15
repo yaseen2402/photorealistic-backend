@@ -31,8 +31,11 @@ const addComment=async(req, res) =>{
   ORDER BY created_at DESC;
 `
       const result = await pool.query(query, [zipCode]);
-      console.log(result)
-      res.status(200).json(result.rows);
+      const comments = result.rows.map(row => row.comment); // Assuming the comment field is `comment`
+      const formattedComments = comments.map(comment => `"${comment}"`).join(", ");
+
+      console.log(formattedComments);
+    res.status(200).json({ comments: formattedComments });
     } catch (error) {
       console.error("Error fetching comments:", error);
       res.status(500).json({ error: "Failed to fetch comments" });

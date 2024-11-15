@@ -94,7 +94,9 @@ app.get('/api/locations', async (req, res) => {
           zip_code, 
           CONCAT(city, ', ', state) AS name 
         FROM 
-          zip_codes;
+          zip_codes
+        WHERE
+          geometry IS NOT NULL;;
       `);
   
       // Format response
