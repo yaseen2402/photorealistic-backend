@@ -55,110 +55,78 @@ const getPropertyRecommendations = async (
         const propResult = await pool.query(propQuery, [minBeds, minBaths, rentOrBuy, priceMin, priceMax]);
         const propTable = propResult.rows;
 
-        // Get zip code data
+        // Query Zip Codes
         const zipQuery = 'SELECT * FROM zip_codes';
-        const zipResult = await pool.query(zipQuery);
-        const zipCodeTable = zipResult.rows;
+        const zipCodeRes = await client.query(zipQuery);
+        const zipCodeTable = zipCodeRes.rows;
 
-        // Create zip code info dictionary
-        const zipInfo = {};
-        zipCodeTable.forEach(row => {
-            zipInfo[row.zip_code] = {
-                median_age: row.median_age,
-                home_value_forecast: row.home_value_forecast
-            };
-        });
+        const dZipInfo = zipCodeTable.reduce((acc, row) => {
+            acc[row.zip_code_id] = { median_age: row.median_age, home_value_forecast: row.home_value_forecast };
+            return acc;
+        }, {});
 
         let meanHomeValueForecast = 0;
-        if (rentOrBuy === 'for_sale' && homeValuePriority) {
-            const forecasts = Object.values(zipInfo)
-                .map(x => x.home_value_forecast || 0);
-            meanHomeValueForecast = forecasts.reduce((a, b) => a + b, 0) / forecasts.length;
+        if (rentOrBuy === 'buy' && homeValuePriority) {
+            meanHomeValueForecast = Object.values(dZipInfo).reduce((sum, data) => sum + (data.home_value_forecast || 0), 0) / Object.keys(dZipInfo).length;
         }
 
-        const propLoc = new Map();
+        let dPropLoc = {};
         let ageFilterTracker = age;
         let loopCounter = 10;
-
-        while (propLoc.size < propsToReturn && loopCounter > 0) {
-            const ageFilteredZipCodes = new Set();
-            const lowForecastZipCodes = new Set();
-
-            for (const [zipCode, data] of Object.entries(zipInfo)) {
-                if (rentOrBuy === 'for_sale' && homeValuePriority) {
-                    if (data.home_value_forecast < meanHomeValueForecast) {
-                        lowForecastZipCodes.add(zipCode);
-                    }
+        while (Object.keys(dPropLoc).length < propsToReturn && loopCounter > 0) {
+            let ageFilteredZipCodes = new Set();
+            let lowForecastZipCodes = new Set();
+            for (let [zipCode, data] of Object.entries(dZipInfo)) {
+                if (rentOrBuy === 'buy' && homeValuePriority && data.home_value_forecast < meanHomeValueForecast) {
+                    lowForecastZipCodes.add(zipCode);
                 }
-
                 if (age !== null && filterByMedianAge && data.median_age !== null) {
-                    const ageLowBound = Math.min(ageFilterTracker - Math.pow(ageFilterTracker/10, 1.5), 50);
-                    const ageHighBound = ageFilterTracker + Math.pow(ageFilterTracker/10, 1.5);
-                    const aroundMedianAge = data.median_age >= ageLowBound && data.median_age <= ageHighBound;
-                    if (!aroundMedianAge) {
+                    const ageLowBound = Math.min(ageFilterTracker - (ageFilterTracker / 10) ** 1.5, 50);
+                    const ageHighBound = ageFilterTracker + (ageFilterTracker / 10) ** 1.5;
+                    if (!(data.median_age >= ageLowBound && data.median_age <= ageHighBound)) {
                         ageFilteredZipCodes.add(zipCode);
                     }
                 }
             }
 
-            const highForecastZipCodes = new Set(
-                Object.keys(zipInfo).filter(zip => !lowForecastZipCodes.has(zip))
-            );
-            const ageAppropriateZipCodes = new Set(
-                Object.keys(zipInfo).filter(zip => !ageFilteredZipCodes.has(zip))
-            );
-            const filteredZipCodes = new Set(
-                [...highForecastZipCodes].filter(zip => ageAppropriateZipCodes.has(zip))
-            );
+            const highForecastZipCodes = Object.keys(dZipInfo).filter(zipCode => !lowForecastZipCodes.has(zipCode));
+            const ageAppropriateZipCodes = Object.keys(dZipInfo).filter(zipCode => !ageFilteredZipCodes.has(zipCode));
+            const filteredZipCodes = new Set([...highForecastZipCodes, ...ageAppropriateZipCodes]);
 
-            for (const prop of propTable) {
-                const key = `${prop.coordinate_lat},${prop.coordinate_lon}`;
-                if (filteredZipCodes.has(prop.zip_code_id) && !propLoc.has(key)) {
-                    propLoc.set(key, prop.property_id);
+            for (let e of propTable) {
+                if (filteredZipCodes.has(e.zip_code_id) && !(e.coordinate_lat, e.coordinate_lon) in dPropLoc) {
+                    dPropLoc[[e.coordinate_lat, e.coordinate_lon]] = e.property_id;
                 }
             }
 
-            if (rentOrBuy === 'for_sale' && homeValuePriority) {
-                meanHomeValueForecast -= 0.5;
-            }
-            if (age !== null && filterByMedianAge) {
-                ageFilterTracker -= 5;
-            }
+            if (rentOrBuy === 'buy' && homeValuePriority) meanHomeValueForecast -= 0.5;
+            if (age !== null && filterByMedianAge) ageFilterTracker -= 5;
 
-            loopCounter--;
+            loopCounter -= 1;
         }
 
-        const propertyRecs = [];
+        // Handle Anchor Locations
+        let propertyRecs = [];
         if (anchorAddresses && anchorAddresses.length > 0) {
             let radius = 1;
             while (propertyRecs.length < propsToReturn && radius < R) {
-                for (const [coords, propId] of propLoc.entries()) {
-                    const [lat, lon] = coords.split(',').map(Number);
-                    let isPropInRadius = true;
-
-                    for (const [anchorLat, anchorLon] of anchorAddresses) {
-                        if (!isLatLonInRadius(anchorLat, anchorLon, lat, lon, radius)) {
-                            isPropInRadius = false;
-                            break;
-                        }
+                for (let [loc, pId] of Object.entries(dPropLoc)) {
+                    const [lat, lon] = loc.split(',');
+                    const isPropInRadius = anchorAddresses.every(([anchorLat, anchorLon]) => isLatLonInRadius(parseFloat(anchorLat), parseFloat(anchorLon), parseFloat(lat), parseFloat(lon), radius));
+                    if (isPropInRadius && !propertyRecs.some(rec => rec[0] === pId)) {
+                        propertyRecs.push([pId, lat, lon]);
                     }
-
-                    if (isPropInRadius && !propertyRecs.some(rec => rec[0] === propId)) {
-                        propertyRecs.push([propId, lat, lon]);
-                    }
-
                     if (propertyRecs.length === propsToReturn) break;
                 }
                 radius *= 2;
             }
         } else {
-            for (const [coords, propId] of propLoc.entries()) {
-                const [lat, lon] = coords.split(',').map(Number);
-                propertyRecs.push([propId, lat, lon]);
+            for (let [loc, pId] of Object.entries(dPropLoc)) {
+                propertyRecs.push([pId, loc.split(',')[0], loc.split(',')[1]]);
                 if (propertyRecs.length === propsToReturn) break;
             }
         }
-        propertyRecs = [[4, 40.80934, -73.94682], [4, 40.80934, -73.94682], [4, 40.80934, -73.94682]]
+
         return propertyRecs;
     } catch (error) {
         console.error('Error in getPropertyRecommendations:', error);
