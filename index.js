@@ -15,7 +15,7 @@ const corsOptions = {
     'http://localhost:3000',
     'http://localhost:8081/explore',
     'http://localhost:8081',
-    'exp://192.168.*.*:8081',
+    'exp://localhost:8081',
     'exp://192.168.*.*:8081',
     'https://photorealistic-backend-583139081352.us-central1.run.app'
   ],
