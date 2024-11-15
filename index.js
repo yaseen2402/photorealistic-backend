@@ -11,13 +11,18 @@ const pool = require('./db');
 const app = express();
 
 const corsOptions = {
-    origin: 'http://localhost:3000',
-
-    credentials: true,
-    methods: 'GET, POST, PUT, DELETE, OPTIONS',
-    allowedHeaders: 'Authorization,Content-Type',
-    maxAge: 3600
-  };
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:8081/explore',
+    'http://localhost:8081',
+    'exp://192.168.*.*:8081',
+    'https://photorealistic-backend-583139081352.us-central1.run.app'
+  ],
+  credentials: true,
+  methods: 'GET, POST, PUT, DELETE, OPTIONS',
+  allowedHeaders: 'Authorization,Content-Type',
+  maxAge: 3600
+};
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Enable preflight OPTIONS request for all routes
 
