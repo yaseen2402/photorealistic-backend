@@ -25,20 +25,18 @@ const corsOptions = {
   maxAge: 86400
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Enable preflight OPTIONS request for all routes
+app.options('*', cors(corsOptions)); 
 
-// app.use((req, res, next) => {
-//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');  
-//     res.setHeader('Access-Control-Allow-Credentials', 'true');
-//     res.setHeader('Access-Control-Allow-Methods', '*');
-//     res.setHeader('Access-Control-Allow-Headers', '*');
-//     res.setHeader('Access-Control-Max-Age', '3600');
-//     // Handle OPTIONS requests
-//     if (req.method === 'OPTIONS') {
-//       return res.status(204).send('');
-//     }
-//     next();
-//   });
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('X-Frame-Options', 'DENY');
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.header('X-XSS-Protection', '1; mode=block');
+  res.header('Content-Security-Policy', "default-src 'self'");
+  res.header('Strict-Transport-Security', 'max-age=31536000');
+  
+  next();
+});
 
 
 
