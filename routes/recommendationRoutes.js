@@ -39,13 +39,7 @@ router.post('/', async (req, res) => {
 
         res.json({
             success: true,
-            recommendations: recommendations.map(([propertyId, lat, lon]) => ({
-                property_id: propertyId,
-                location: {
-                    latitude: lat,
-                    longitude: lon
-                }
-            }))
+            recommendations: recommendations
         });
     } catch (error) {
         console.error('Error in recommendation route:', error);
