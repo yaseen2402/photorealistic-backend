@@ -11,10 +11,12 @@ const pool = require('./db');
 const app = express();
 const wellknown = require('wellknown');
 
+
+//DO NOT TOUCH THIS CODE 
 const corsOptions = {
   origin: ['http://localhost:3000',
   'http://localhost:8081'],
-
+//DO NOT TOUCH THIS CODE 
   credentials: true,
   methods: 'GET, POST, PUT, DELETE, OPTIONS',
   allowedHeaders: 'Authorization,Content-Type',
@@ -22,6 +24,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Enable preflight OPTIONS request for all routes
+//DO NOT TOUCH THIS CODE 
 
 // app.use((req, res, next) => {
 //     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');  
@@ -42,9 +45,6 @@ app.use(express.json());
 
 
 
-// Middleware
-
-
 app.use('/api/users',userRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/comments',commentRoutes);
@@ -60,18 +60,14 @@ app.get('/api/message', (req, res) => {
     res.send(`Your message: ${message}`);
 });
 
-app.get('/api/locations/:postalCode?', async (req, res) => {
+app.get('/api/locations/:postalCode', async (req, res) => {
   const postalCode = req.params.postalCode;
 
   try {
     // Check if postalCode is provided
-    const query = postalCode
-      ? 'SELECT postal_code, ST_AsText(geometry) AS geometry FROM postal_codes WHERE postal_code = $1'
-      : 'SELECT postal_code, ST_AsText(geometry) AS geometry FROM postal_codes';
+    const query = 'SELECT postal_code, ST_AsText(geometry) AS geometry FROM postal_codes WHERE postal_code = $1'
 
-    const result = postalCode
-      ? await pool.query(query, [postalCode])
-      : await pool.query(query);
+    const result = await pool.query(query, [postalCode])
 
     // If no results for the specified postal code
     if (postalCode && result.rows.length === 0) {
@@ -91,6 +87,28 @@ app.get('/api/locations/:postalCode?', async (req, res) => {
   }
 });
 
+app.get('/api/locations', async (req, res) => {
+    try {
+      const result = await pool.query(`
+        SELECT 
+          zip_code, 
+          CONCAT(city, ', ', state) AS name 
+        FROM 
+          zip_codes;
+      `);
+  
+      // Format response
+      const formattedData = result.rows.map(row => ({
+        zipcode: row.zip_code,
+        name: row.name,
+      }));
+  
+      res.json(formattedData);
+    } catch (error) {
+      console.error('Error fetching zipcodes:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
 
 
 app.listen(PORT, () => {
