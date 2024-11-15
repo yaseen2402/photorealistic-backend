@@ -1,0 +1,64 @@
+const express = require('express');
+const router = express.Router();
+const { getPropertyRecommendations } = require('../controllers/recommendationController');
+
+router.get('/', async (req, res) => {
+    try {
+        const {
+            minBeds = 1,
+            minBaths = 1,
+            rentOrBuy = 'buy',
+            priceMin = 0,
+            priceMax = 1000000000,
+            age = null,
+            homeValuePriority = false,
+            filterByMedianAge = true,
+            anchorAddresses = null,
+            propsToReturn = 3
+        } = req.query;
+
+        // Parse anchor addresses if provided
+        let parsedAnchorAddresses = null;
+        if (anchorAddresses) {
+            try {
+                parsedAnchorAddresses = JSON.parse(anchorAddresses);
+            } catch (error) {
+                return res.status(400).json({ 
+                    error: 'Invalid anchor addresses format. Expected JSON array of [lat, lon] pairs.' 
+                });
+            }
+        }
+
+        const recommendations = await getPropertyRecommendations(
+            Number(minBeds),
+            Number(minBaths),
+            rentOrBuy,
+            Number(priceMin),
+            Number(priceMax),
+            age ? Number(age) : null,
+            homeValuePriority === 'true',
+            filterByMedianAge === 'true',
+            parsedAnchorAddresses,
+            Number(propsToReturn)
+        );
+
+        res.json({
+            success: true,
+            recommendations: recommendations.map(([propertyId, lat, lon]) => ({
+                property_id: propertyId,
+                location: {
+                    latitude: lat,
+                    longitude: lon
+                }
+            }))
+        });
+    } catch (error) {
+        console.error('Error in recommendation route:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get property recommendations'
+        });
+    }
+});
+
+module.exports = router;
