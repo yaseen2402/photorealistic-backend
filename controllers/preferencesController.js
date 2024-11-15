@@ -4,17 +4,28 @@ const pool = require('../db');
 const saveUserPreferences = async (req, res) => {
   const { 
     userid,
-    propertyTypes,
-    preferredLocations,
-    minBedrooms,
-    minBathrooms,
-    preferredFeatures,
+    propertyTypes = [],
+    preferredLocations = [],
+    minBedrooms = 0,
+    minBathrooms = 0,
+    preferredFeatures = [],
     investmentPurpose,
-    lifestylePreferences,
-    notificationFrequency,
+    lifestylePreferences = [],
+    notificationFrequency = 'daily',
     propertyStyle,
-    virtualTourPreference
+    virtualTourPreference = false
   } = req.body;
+
+  if (!userid) {
+    return res.status(400).json({ error: 'userid is required' });
+  }
+
+  // Ensure arrays are actually arrays
+  const ensureArray = (value) => Array.isArray(value) ? value : [];
+  const sanitizedPropertyTypes = ensureArray(propertyTypes);
+  const sanitizedPreferredLocations = ensureArray(preferredLocations);
+  const sanitizedPreferredFeatures = ensureArray(preferredFeatures);
+  const sanitizedLifestylePreferences = ensureArray(lifestylePreferences);
 
   try {
     const query = `
@@ -50,13 +61,13 @@ const saveUserPreferences = async (req, res) => {
 
     const result = await pool.query(query, [
       userid,
-      propertyTypes,
-      preferredLocations,
+      sanitizedPropertyTypes,
+      sanitizedPreferredLocations,
       minBedrooms,
       minBathrooms,
-      preferredFeatures,
+      sanitizedPreferredFeatures,
       investmentPurpose,
-      lifestylePreferences,
+      sanitizedLifestylePreferences,
       notificationFrequency,
       propertyStyle,
       virtualTourPreference
@@ -74,14 +85,26 @@ const saveProfessionalProfile = async (req, res) => {
   const {
     userid,
     role,
-    yearsExperience,
-    operationAreas,
-    specializations,
-    clientTypes,
-    listingUpdateFrequency,
-    marketingPreferences,
-    communicationPreferences
+    yearsExperience = 0,
+    operationAreas = [],
+    specializations = [],
+    clientTypes = [],
+    listingUpdateFrequency = 'weekly',
+    marketingPreferences = [],
+    communicationPreferences = []
   } = req.body;
+
+  if (!userid) {
+    return res.status(400).json({ error: 'userid is required' });
+  }
+
+  // Ensure arrays are actually arrays
+  const ensureArray = (value) => Array.isArray(value) ? value : [];
+  const sanitizedOperationAreas = ensureArray(operationAreas);
+  const sanitizedSpecializations = ensureArray(specializations);
+  const sanitizedClientTypes = ensureArray(clientTypes);
+  const sanitizedMarketingPreferences = ensureArray(marketingPreferences);
+  const sanitizedCommunicationPreferences = ensureArray(communicationPreferences);
 
   try {
     const query = `
@@ -115,12 +138,12 @@ const saveProfessionalProfile = async (req, res) => {
       userid,
       role,
       yearsExperience,
-      operationAreas,
-      specializations,
-      clientTypes,
+      sanitizedOperationAreas,
+      sanitizedSpecializations,
+      sanitizedClientTypes,
       listingUpdateFrequency,
-      marketingPreferences,
-      communicationPreferences
+      sanitizedMarketingPreferences,
+      sanitizedCommunicationPreferences
     ]);
 
     res.status(200).json(result.rows[0]);
