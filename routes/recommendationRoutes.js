@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { getPropertyRecommendations } = require('../controllers/recommendationController');
 
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const {
             minBeds = 1,
@@ -15,18 +15,13 @@ router.get('/', async (req, res) => {
             filterByMedianAge = true,
             anchorAddresses = null,
             propsToReturn = 3
-        } = req.query;
+        } = req.body;
 
-        // Parse anchor addresses if provided
-        let parsedAnchorAddresses = null;
-        if (anchorAddresses) {
-            try {
-                parsedAnchorAddresses = JSON.parse(anchorAddresses);
-            } catch (error) {
-                return res.status(400).json({ 
-                    error: 'Invalid anchor addresses format. Expected JSON array of [lat, lon] pairs.' 
-                });
-            }
+        // Validate and parse anchor addresses if provided
+        if (anchorAddresses && !Array.isArray(anchorAddresses)) {
+            return res.status(400).json({ 
+                error: 'Invalid anchor addresses format. Expected an array of [lat, lon] pairs.' 
+            });
         }
 
         const recommendations = await getPropertyRecommendations(
@@ -36,9 +31,9 @@ router.get('/', async (req, res) => {
             Number(priceMin),
             Number(priceMax),
             age ? Number(age) : null,
-            homeValuePriority === 'true',
-            filterByMedianAge === 'true',
-            parsedAnchorAddresses,
+            Boolean(homeValuePriority),
+            Boolean(filterByMedianAge),
+            anchorAddresses,
             Number(propsToReturn)
         );
 
