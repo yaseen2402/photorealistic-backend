@@ -156,7 +156,7 @@ const getPropertyRecommendations = async (
         }
 
         console.log(`Final property recommendations: ${propertyRecs.length}`);
-        return propertyRecs;
+        return filteredZipCodes;
     } catch (error) {
         console.error('Error in getPropertyRecommendations:', error);
         throw error;
