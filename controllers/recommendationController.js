@@ -125,7 +125,7 @@ const getPropertyRecommendations = async (
             for (let e of propTable) { 
                 const locKey = `${e.coordinate_lat},${e.coordinate_lon}`; // Create a unique string key
                 
-                if (filteredZipCodes.has(e.zip_code_id)) {
+                if (filteredZipCodes.has(e.zip_code_id.toString())) {
                     console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
                     dPropLoc[locKey] = e.property_id;
                 }
