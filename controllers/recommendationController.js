@@ -70,40 +70,40 @@ const getPropertyRecommendations = async (
             meanHomeValueForecast = Object.values(dZipInfo).reduce((sum, data) => sum + (data.home_value_forecast || 0), 0) / Object.keys(dZipInfo).length;
         }
         
-        let dPropLoc = {};
-        let ageFilterTracker = age;
-        let loopCounter = 10;
-        while (Object.keys(dPropLoc).length < propsToReturn && loopCounter > 0) {
-            let ageFilteredZipCodes = new Set();
-            let lowForecastZipCodes = new Set();
-            for (let [zipCode, data] of Object.entries(dZipInfo)) {
-                if (rentOrBuy === 'buy' && homeValuePriority && data.home_value_forecast < meanHomeValueForecast) {
-                    lowForecastZipCodes.add(zipCode);
-                }
-                if (age !== null && filterByMedianAge && data.median_age !== null) {
-                    const ageLowBound = Math.min(ageFilterTracker - (ageFilterTracker / 10) ** 1.5, 50);
-                    const ageHighBound = ageFilterTracker + (ageFilterTracker / 10) ** 1.5;
-                    if (!(data.median_age >= ageLowBound && data.median_age <= ageHighBound)) {
-                        ageFilteredZipCodes.add(zipCode);
-                    }
-                }
-            }
+        // let dPropLoc = {};
+        // let ageFilterTracker = age;
+        // let loopCounter = 10;
+        // while (Object.keys(dPropLoc).length < propsToReturn && loopCounter > 0) {
+        //     let ageFilteredZipCodes = new Set();
+        //     let lowForecastZipCodes = new Set();
+        //     for (let [zipCode, data] of Object.entries(dZipInfo)) {
+        //         if (rentOrBuy === 'buy' && homeValuePriority && data.home_value_forecast < meanHomeValueForecast) {
+        //             lowForecastZipCodes.add(zipCode);
+        //         }
+        //         if (age !== null && filterByMedianAge && data.median_age !== null) {
+        //             const ageLowBound = Math.min(ageFilterTracker - (ageFilterTracker / 10) ** 1.5, 50);
+        //             const ageHighBound = ageFilterTracker + (ageFilterTracker / 10) ** 1.5;
+        //             if (!(data.median_age >= ageLowBound && data.median_age <= ageHighBound)) {
+        //                 ageFilteredZipCodes.add(zipCode);
+        //             }
+        //         }
+        //     }
 
-            const highForecastZipCodes = Object.keys(dZipInfo).filter(zipCode => !lowForecastZipCodes.has(zipCode));
-            const ageAppropriateZipCodes = Object.keys(dZipInfo).filter(zipCode => !ageFilteredZipCodes.has(zipCode));
-            const filteredZipCodes = new Set([...highForecastZipCodes, ...ageAppropriateZipCodes]);
+        //     const highForecastZipCodes = Object.keys(dZipInfo).filter(zipCode => !lowForecastZipCodes.has(zipCode));
+        //     const ageAppropriateZipCodes = Object.keys(dZipInfo).filter(zipCode => !ageFilteredZipCodes.has(zipCode));
+        //     const filteredZipCodes = new Set([...highForecastZipCodes, ...ageAppropriateZipCodes]);
 
-            for (let e of propTable) {
-                if (filteredZipCodes.has(e.zip_code_id) && !(e.coordinate_lat, e.coordinate_lon) in dPropLoc) {
-                    dPropLoc[[e.coordinate_lat, e.coordinate_lon]] = e.property_id;
-                }
-            }
+        //     for (let e of propTable) {
+        //         if (filteredZipCodes.has(e.zip_code_id) && !(e.coordinate_lat, e.coordinate_lon) in dPropLoc) {
+        //             dPropLoc[[e.coordinate_lat, e.coordinate_lon]] = e.property_id;
+        //         }
+        //     }
 
-            if (rentOrBuy === 'buy' && homeValuePriority) meanHomeValueForecast -= 0.5;
-            if (age !== null && filterByMedianAge) ageFilterTracker -= 5;
+        //     if (rentOrBuy === 'buy' && homeValuePriority) meanHomeValueForecast -= 0.5;
+        //     if (age !== null && filterByMedianAge) ageFilterTracker -= 5;
 
-            loopCounter -= 1;
-        }
+        //     loopCounter -= 1;
+        // }
 
         // // Handle Anchor Locations
         // let propertyRecs = [];
@@ -127,7 +127,7 @@ const getPropertyRecommendations = async (
         //     }
         
 
-        propertyRecs = filteredZipCodes;
+        let propertyRecs = dZipInfo;
         return propertyRecs;
     } catch (error) {
         console.error('Error in getPropertyRecommendations:', error);
