@@ -123,11 +123,14 @@ const getPropertyRecommendations = async (
 
             for (let e of propTable) { 
                 const locKey = `${e.coordinate_lat},${e.coordinate_lon}`; // Create a unique string key
-                if (filteredZipCodes.has(e.zip_code_id) && !(locKey in dPropLoc)) {
-                    console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
-                    dPropLoc[locKey] = e.property_id;
-                    console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
-                }
+                // if (filteredZipCodes.has(e.zip_code_id) && !(locKey in dPropLoc)) {
+                //     console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
+                //     dPropLoc[locKey] = e.property_id;
+                //     console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
+                // }
+                console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
+                dPropLoc[locKey] = e.property_id;
+                console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
             }
             
 
@@ -136,7 +139,8 @@ const getPropertyRecommendations = async (
 
             loopCounter -= 1;
         }
-
+        console.log(`Filtered zip codes: ${filteredZipCodes.size}`);
+        console.log(`stuff: ${[...dPropLoc.entries()]}`)
         // Handle Anchor Locations
         let propertyRecs = [];
         if (anchorAddresses && anchorAddresses.length > 0) {
