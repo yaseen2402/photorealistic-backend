@@ -121,11 +121,13 @@ const getPropertyRecommendations = async (
 
             console.log(`Filtered zip codes: ${filteredZipCodes.size}`);
 
-            for (let e of propTable) {
-                if (filteredZipCodes.has(e.zip_code_id) && !(e.coordinate_lat, e.coordinate_lon) in dPropLoc) {
-                    dPropLoc[[e.coordinate_lat, e.coordinate_lon]] = e.property_id;
+            for (let e of propTable) { 
+                const locKey = `${e.coordinate_lat},${e.coordinate_lon}`; // Create a unique string key
+                if (filteredZipCodes.has(e.zip_code_id) && !(locKey in dPropLoc)) {
+                    dPropLoc[locKey] = e.property_id;
                 }
             }
+            
 
             if (rentOrBuy === 'buy' && homeValuePriority) meanHomeValueForecast -= 0.5;
             if (age !== null && filterByMedianAge) ageFilterTracker -= 5;
@@ -140,9 +142,11 @@ const getPropertyRecommendations = async (
         if (anchorAddresses && anchorAddresses.length > 0) {
             let radius = 1;
             while (propertyRecs.length < propsToReturn && radius < R) {
-                for (let [loc, pId] of Object.entries(dPropLoc)) {
-                    const [lat, lon] = loc.split(',');
-                    const isPropInRadius = anchorAddresses.every(([anchorLat, anchorLon]) => isLatLonInRadius(parseFloat(anchorLat), parseFloat(anchorLon), parseFloat(lat), parseFloat(lon), radius));
+                for (let [locKey, pId] of Object.entries(dPropLoc)) {
+                    const [lat, lon] = locKey.split(',').map(parseFloat);
+                    const isPropInRadius = anchorAddresses.every(([anchorLat, anchorLon]) =>
+                        isLatLonInRadius(anchorLat, anchorLon, lat, lon, radius)
+                    );
                     if (isPropInRadius && !propertyRecs.some(rec => rec[0] === pId)) {
                         propertyRecs.push([pId, lat, lon]);
                     }
@@ -151,8 +155,9 @@ const getPropertyRecommendations = async (
                 radius *= 2;
             }
         } else {
-            for (let [loc, pId] of Object.entries(dPropLoc)) {
-                propertyRecs.push([pId, loc.split(',')[0], loc.split(',')[1]]);
+            for (let [locKey, pId] of Object.entries(dPropLoc)) {
+                const [lat, lon] = locKey.split(',').map(parseFloat);
+                propertyRecs.push([pId, lat, lon]);
                 if (propertyRecs.length === propsToReturn) break;
             }
         }
