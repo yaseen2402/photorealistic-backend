@@ -133,8 +133,11 @@ const getPropertyRecommendations = async (
             loopCounter -= 1;
         }
 
+        console.log(`prop loc dict: ${dPropLoc}`);
+
         // Handle Anchor Locations
         let propertyRecs = [];
+        console.log(`anchor andresses: ${anchorAddresses.length}`);
         if (anchorAddresses && anchorAddresses.length > 0) {
             let radius = 1;
             while (propertyRecs.length < propsToReturn && radius < R) {
