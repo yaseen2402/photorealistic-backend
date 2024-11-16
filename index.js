@@ -92,7 +92,16 @@ app.get('/api/locations', async (req, res) => {
       const result = await pool.query(`
         SELECT 
           zip_code, 
-          CONCAT(city, ', ', state) AS name 
+          CONCAT(city, ', ', state) AS name,
+          population,
+          median_age,
+          median_age_male,
+          median_age_female,
+          male_pop,
+          female_pop,
+          vacancies_for_rent_percent,
+          vacancies_for_sale_percent,
+          home_value_forecast
         FROM 
           zip_codes
         WHERE
@@ -103,6 +112,15 @@ app.get('/api/locations', async (req, res) => {
       const formattedData = result.rows.map(row => ({
         zipcode: row.zip_code,
         name: row.name,
+        population: row.population,
+        medianAge: row.median_age,
+        medianAgeMale: row.median_age_male,
+        medianAgeFemale: row.median_age_female,
+        malePop: row.male_pop,
+        femalePop: row.female_pop,
+        vacanciesForRentPercent: row.vacancies_for_rent_percent,
+        vacanciesForSalePercent: row.vacancies_for_sale_percent,
+        homeValueForecast: row.home_value_forecast
       }));
   
       res.json(formattedData);
