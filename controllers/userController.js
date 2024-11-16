@@ -69,4 +69,26 @@ const findUserByUsername = async (req, res) => {
   }
 };
 
-module.exports = { addUser, findUserByUsername };
+const findUserByUserId = async (req, res) => {
+  const { userid } = req.params;
+
+  if (!userid) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    const query = 'SELECT userid, username, name FROM users WHERE userid = $1';
+    const result = await pool.query(query, [userid]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error('Error finding user:', error);
+    res.status(500).json({ error: 'Failed to find user' });
+  }
+};
+
+module.exports = { addUser, findUserByUsername, findUserByUserId };
