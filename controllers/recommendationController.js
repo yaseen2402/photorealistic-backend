@@ -119,8 +119,8 @@ const getPropertyRecommendations = async (
             const ageAppropriateZipCodes = Object.keys(dZipInfo).filter(zipCode => !ageFilteredZipCodes.has(zipCode));
             const filteredZipCodes = new Set([...highForecastZipCodes, ...ageAppropriateZipCodes]);
 
-            console.log(JSON.stringify([...filteredZipCodes], null, 2));
-
+            console.log(JSON.stringify([...filteredZipCodes]));
+            console.log(JSON.stringify(propTable));
             for (let e of propTable) { 
                 const locKey = `${e.coordinate_lat},${e.coordinate_lon}`; // Create a unique string key
                 if (filteredZipCodes.has(e.zip_code_id)) {
