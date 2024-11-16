@@ -80,11 +80,11 @@ const getPropertyRecommendations = async (
         const zipCodeRes = await pool.query(zipQuery);
         const zipCodeTable = zipCodeRes.rows;
         console.log(`Zip code data fetched: ${zipCodeTable.length}`);
-
         const dZipInfo = zipCodeTable.reduce((acc, row) => {
             acc[row.zip_code_id] = { median_age: row.median_age, home_value_forecast: row.home_value_forecast };
             return acc;
         }, {});
+        
         console.log('Processed zip code information.');
 
         let meanHomeValueForecast = 0;
@@ -111,6 +111,7 @@ const getPropertyRecommendations = async (
                     const ageHighBound = ageFilterTracker + (ageFilterTracker / 10) ** 1.5;
                     if (!(data.median_age >= ageLowBound && data.median_age <= ageHighBound)) {
                         ageFilteredZipCodes.add(zipCode);
+                        console.log(typeof zipCode);
                     }
                 }
             }
@@ -119,10 +120,10 @@ const getPropertyRecommendations = async (
             const ageAppropriateZipCodes = Object.keys(dZipInfo).filter(zipCode => !ageFilteredZipCodes.has(zipCode));
             const filteredZipCodes = new Set([...highForecastZipCodes, ...ageAppropriateZipCodes]);
 
-            console.log(JSON.stringify([...filteredZipCodes]));
-            console.log(JSON.stringify(propTable));
             for (let e of propTable) { 
                 const locKey = `${e.coordinate_lat},${e.coordinate_lon}`; // Create a unique string key
+                console.log(typeof e.zip_code_id);
+                
                 if (filteredZipCodes.has(e.zip_code_id)) {
                     console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
                     dPropLoc[locKey] = e.property_id;
