@@ -127,9 +127,6 @@ const getPropertyRecommendations = async (
                     console.log(`Added to dPropLoc: ${locKey} -> ${e.property_id}`);
                     dPropLoc[locKey] = e.property_id;
                 }
-                else {
-                    console.log(`Did not add ${locKey} -> ${e.property_id}`);
-                }
             }
             
 
@@ -137,8 +134,10 @@ const getPropertyRecommendations = async (
             if (age !== null && filterByMedianAge) ageFilterTracker -= 5;
 
             loopCounter -= 1;
+
+            console.log(`Filtered zip codes: ${filteredZipCodes.size}`);
         }
-        console.log(`Filtered zip codes: ${filteredZipCodes.size}`);
+        
 
         // Handle Anchor Locations
         let propertyRecs = [];
