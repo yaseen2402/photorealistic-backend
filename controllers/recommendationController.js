@@ -127,7 +127,7 @@ const getPropertyRecommendations = async (
         //     }
         
 
-        let propertyRecs = dZipInfo;
+        let propertyRecs = zipCodeTable;
         return propertyRecs;
     } catch (error) {
         console.error('Error in getPropertyRecommendations:', error);
