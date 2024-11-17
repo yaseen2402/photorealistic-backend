@@ -164,7 +164,7 @@ const getNearbyBucketList = async (req, res) => {
           sin(radians($1)) * sin(radians(latitude))
         )
       ) <= $3
-      GROUP BY b.place_id, b.name, b.address, b.latitude, b.longitude, b.created_at
+      GROUP BY b.id, b.userid, b.place_id, b.name, b.address, b.latitude, b.longitude, b.created_at
       ORDER BY popularity DESC, distance ASC
       LIMIT 20;
     `;
@@ -177,49 +177,11 @@ const getNearbyBucketList = async (req, res) => {
   }
 };
 
-const getPopularLocationsByCategory = async (req, res) => {
-  const { category } = req.query;
-  const validCategories = ['beach', 'mountain', 'city', 'landmark', 'nature', 'cultural'];
-
-  if (category && !validCategories.includes(category)) {
-    return res.status(400).json({ 
-      error: 'Invalid category',
-      validCategories
-    });
-  }
-
-  try {
-    const query = `
-      SELECT 
-        place_id,
-        name,
-        address,
-        latitude,
-        longitude,
-        category,
-        COUNT(*) as popularity
-      FROM bucket_list
-      ${category ? 'WHERE category = $1' : ''}
-      GROUP BY place_id, name, address, latitude, longitude, category
-      ORDER BY popularity DESC
-      LIMIT 10;
-    `;
-    
-    const values = category ? [category] : [];
-    const result = await pool.query(query, values);
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.error('Error fetching popular locations by category:', error);
-    res.status(500).json({ error: 'Failed to fetch popular locations by category' });
-  }
-};
-
 module.exports = { 
   addToBucketList, 
   getBucketList, 
   removeFromBucketList, 
   getPopularLocations,
   getSimilarUsers,
-  getNearbyBucketList,
-  getPopularLocationsByCategory
+  getNearbyBucketList
 };
