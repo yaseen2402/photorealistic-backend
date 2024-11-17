@@ -1,21 +1,31 @@
 const express = require('express');
-const router = express.Router();
 const { getPropertyRecommendations } = require('../controllers/recommendationController');
+
+const router = express.Router();
+
 
 router.post('/', async (req, res) => {
     try {
         const {
-            minBeds = 1,
-            minBaths = 1,
-            rentOrBuy = 'buy',
-            priceMin = 0,
-            priceMax = 1000000000,
-            age = null,
-            homeValuePriority = false,
-            filterByMedianAge = true,
-            anchorAddresses = null,
-            propsToReturn = 3
+            minBeds,
+            minBaths,
+            rentOrBuy,
+            priceMin,
+            priceMax,
+            age,
+            homeValuePriority,
+            filterByMedianAge,
+            anchorAddresses,
+            propsToReturn,
         } = req.body;
+        
+
+        // Validate the required fields
+        if (minBeds == null || minBaths == null || !["rent", "buy"].includes(rentOrBuy) || priceMin == null || priceMax == null) {
+            return res.status(400).json({
+                message: 'Please provide minBeds, minBaths, rentOrBuy, priceMin, and priceMax.',
+            });
+        }
 
         // Validate and parse anchor addresses if provided
         if (anchorAddresses && !Array.isArray(anchorAddresses)) {
@@ -39,7 +49,7 @@ router.post('/', async (req, res) => {
 
         res.json({
             success: true,
-            recommendations: recommendations
+            data: recommendations
         });
     } catch (error) {
         console.error('Error in recommendation route:', error);
