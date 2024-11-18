@@ -1,10 +1,10 @@
-## Geoestae 
+## Geoestate 
    - description
 
-##setup required to run
+## Setup required to run
 
-##structure of env
+## Structure of env
 
-##prompts for installing packages and running server
+## Prompts for installing packages and running server
 
-##additional info
+## Additional info
