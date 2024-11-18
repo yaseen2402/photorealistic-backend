@@ -64,13 +64,14 @@ const getPropertyRecommendations = async (
 
         // Get properties matching basic criteria
         const propQuery = `
-            SELECT property_id, zip_code_id, coordinate_lat, coordinate_lon
-            FROM properties
-            WHERE num_beds >= $1
-                AND num_baths >= $2
-                AND status = $3
-                AND price BETWEEN $4 AND $5
-        `;
+        SELECT *
+        FROM properties
+        WHERE num_beds >= $1
+            AND num_baths >= $2
+            AND status = $3
+            AND price BETWEEN $4 AND $5
+    `;
+    
 
         const propResult = await pool.query(propQuery, [minBeds, minBaths, rentOrBuy, priceMin, priceMax]);
         const propTable = propResult.rows;
@@ -140,11 +141,11 @@ const getPropertyRecommendations = async (
             
             for (let e of propTable) { 
                 const locKey = `${e.coordinate_lat},${e.coordinate_lon}`; // Create a unique string key
-                
                 if (filteredZipCodes.has(e.zip_code_id.toString())) {
-                    dPropLoc[locKey] = e.property_id;
+                    dPropLoc[locKey] = e; // Store the full property row
                 }
             }
+            
             
 
             if (rentOrBuy === 'for_sale' && homeValuePriority) meanHomeValueForecast -= 0.5;
@@ -163,7 +164,7 @@ const getPropertyRecommendations = async (
             while (propertyRecs.length < propsToReturn && radius < R) {
                 for (let [locKey, pId] of Object.entries(dPropLoc)) {
                     const [lat, lon] = locKey.split(',').map(parseFloat);
-
+        
                     let isPropInRadius = true;
                     for (const [alat, alon] of anchorAddresses) {
                         if (!isLatLonInRadius(parseFloat(alat), parseFloat(alon), lat, lon, radius)) {
@@ -171,21 +172,20 @@ const getPropertyRecommendations = async (
                             break;
                         }
                     }
-
-                    const isPropinArray = propertyRecs.some((arr) => arr[0] === pId);
-
+        
+                    const isPropinArray = propertyRecs.some((arr) => arr.property_id === pId);
+        
                     if (isPropInRadius && !isPropinArray) {
-                        propertyRecs.push([pId, lat, lon]);
+                        propertyRecs.push(dPropLoc[locKey]); // Include the full row
                     }
-
+        
                     if (propertyRecs.length === propsToReturn) break;
                 }
                 radius *= 2;
             }
         } else {
-            for (let [locKey, pId] of Object.entries(dPropLoc)) {
-                const [lat, lon] = locKey.split(',').map(parseFloat);
-                propertyRecs.push([pId, lat, lon]);
+            for (let [locKey, property] of Object.entries(dPropLoc)) {
+                propertyRecs.push(property); // Include the full row
                 if (propertyRecs.length === propsToReturn) break;
             }
         }

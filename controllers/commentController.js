@@ -21,26 +21,33 @@ const addComment=async(req, res) =>{
   
   const getComments = async (req, res) => {
     const { zipcode } = req.params;
-    console.log(zipcode)
-    
-   zipCode=zipcode.trim();
-    try {
-      const query = `
-         SELECT * FROM comments
-  WHERE location->>'zipCode' = $1
-  ORDER BY created_at DESC;
-`
-      const result = await pool.query(query, [zipCode]);
-      const comments = result.rows.map(row => row.comment); // Assuming the comment field is `comment`
-      const formattedComments = comments.map(comment => `"${comment}"`).join(", ");
+    console.log(zipcode);
 
-      console.log(formattedComments);
-    res.status(200).json({ comments: formattedComments });
+    const zipCode = zipcode.trim(); // Ensure `zipcode` is trimmed
+    try {
+        const query = `
+            SELECT comment, user_name, created_at, is_residential 
+            FROM comments
+            WHERE location->>'zipCode' = $1
+            ORDER BY created_at DESC;
+        `;
+        const result = await pool.query(query, [zipCode]);
+
+        // Format the result rows directly
+        const formattedComments = result.rows.map(row => ({
+            comment: row.comment,
+            user_name: row.user_name,
+            created_at: row.created_at,
+            is_residential: row.is_residential
+        }));
+
+        res.status(200).json(formattedComments); // Send the array of objects
     } catch (error) {
-      console.error("Error fetching comments:", error);
-      res.status(500).json({ error: "Failed to fetch comments" });
+        console.error("Error fetching comments:", error);
+        res.status(500).json({ error: "Failed to fetch comments" });
     }
-  };
+};
+
   
   
   module.exports = { addComment, getComments };
