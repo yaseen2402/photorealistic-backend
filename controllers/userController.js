@@ -32,8 +32,8 @@ const addUser = async (req, res) => {
 
     // Insert new user
     const insertResult = await pool.query(
-      'INSERT INTO users (userid, name, username, zipcode, status) VALUES ($1, $2, $3, $4, $5)',
-      [userid, name, username, zipcode, status]
+      'INSERT INTO users (userid, name, username, zipcode, status, achievements) VALUES ($1, $2, $3, $4, $5, $6)',
+      [userid, name, username, zipcode, status, Json({"first_login": "https://www.canva.com/design/DAGWzAL_O-A/kA7v43yaxV3vTTvAdKOjUA/view", "first_comment" : null})]
     );
 
     res.status(201).json({

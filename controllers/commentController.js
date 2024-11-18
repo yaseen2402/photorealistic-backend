@@ -8,10 +8,16 @@ const addComment=async(req, res) =>{
       const query = `
         INSERT INTO comments (user_id, user_name, location, comment, is_residential)
         VALUES ($1, $2, $3, $4, $5) RETURNING *;
+        
+        UPDATE users SET achievements = jsonb_set(achievements, 
+        '{first_comment}', '"https://www.canva.com/design/DAGWzlpYbo0/tEor0pdzdzzTCw7wItP22A/view?utm_content=DAGWzlpYbo0&utm_campaign=designshare&utm_medium=link&utm_source=editor"')
+        WHERE user_id = $6;
       `;
-      const values = [userId, userName, location, comment, isResidential];
+      const values = [userId, userName, location, comment, isResidential, userId];
   
       const result = await pool.query(query, values);
+
+
       res.status(201).json(result.rows[0]);
     } catch (error) {
       console.error("Error adding comment:", error);
