@@ -1,7 +1,7 @@
 ## Geoestate 
    - description
 
-## Setup required to run
+## Setup Environment
 
 ## Structure of env
 
