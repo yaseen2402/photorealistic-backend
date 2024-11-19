@@ -17,11 +17,11 @@ const wellknown = require('wellknown');
 //DO NOT TOUCH THIS CODE 
 const corsOptions = {
   origin: ['http://localhost:3000',
-  'http://localhost:8081','https://geostate-frontend.vercel.app/','https://geo.estate/'],
+  'http://localhost:8081','https://geostate-frontend.vercel.app','https://geo.estate'],
 //DO NOT TOUCH THIS CODE 
   credentials: true,
   methods: 'GET, POST, PUT, DELETE, OPTIONS',
-  allowedHeaders: 'Authorization,Content-Type',
+  allowedHeaders: ['Authorization,Content-Type'],
   maxAge: 3600
 };
 app.use(cors(corsOptions));
