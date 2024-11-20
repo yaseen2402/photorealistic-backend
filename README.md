@@ -1,10 +1,8 @@
-## Geoestate 
-   - description
 
 ## Setup Environment
 
 ## Structure of env
 
-## Prompts for installing packages and running server
+## Get Started
 
-## Additional info
+## How It Works
